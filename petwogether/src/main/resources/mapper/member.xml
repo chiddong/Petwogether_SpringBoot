@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="member">
+
+   <select id="auth" parameterType="com.test.petwogether.model.member.MemberDTO" resultType="com.test.petwogether.model.member.MemberDTO">
+      select * from tblMember where mid=#{mid} and mpw=#{mpw}
+   </select>
+
+	<!-- 지현START ====== -->
+	<select id="adrlist" parameterType="java.util.HashMap" resultType="com.test.petwogether.model.member.AdoptReviewDTO">
+		select arseq, m.mname as arname, artitle, arcontent, arregdate, arview 
+			from (select rownum as rnum, ar.* from tblAdoptReview ar order by arseq desc) ar left join tblMember m on ar.mseq = m.mseq
+			 where rnum between #{begin} and #{end}
+				order by arseq desc
+	</select>
+	
+	<select id="getadrdetail" parameterType="String" resultType="com.test.petwogether.model.member.AdoptReviewDTO">
+		select arseq, m.mseq as mseq, m.mname as arname, artitle, arcontent, arregdate, arview, arfile 
+			from tblAdoptReview ar left join tblMember m on ar.mseq = m.mseq 
+				where arseq = #{arseq}
+	</select>
+
+	<select id="getmaxarseq" resultType="Integer">
+		select max(arseq) from tblAdoptReview
+	</select>
+	
+	<insert id="adradd" parameterType="com.test.petwogether.model.member.AdoptReviewDTO">
+		insert into tblAdoptReview (arseq, mseq, artitle, arcontent, arregdate, arview, arfile) 
+			values (${arseq}, ${mseq}, #{artitle}, #{arcontent}, default, default, #{arfile})		
+	</insert>
+	
+	<select id="editadr" parameterType="String" resultType="com.test.petwogether.model.member.AdoptReviewDTO">
+		select * from tblAdoptReview where arseq = ${arseq}
+	</select>
+	
+	<update id="updateadr" parameterType="com.test.petwogether.model.member.AdoptReviewDTO">
+		update tblAdoptReview set artitle=#{artitle}, arcontent=#{arcontent}, arfile=#{arfile} where arseq=${arseq}
+	</update>
+	
+	<delete id="deladr" parameterType="String">
+		delete from tblAdoptReview where arseq = ${arseq}
+	</delete>
+	
+	<update id="updatearview" parameterType="String">
+		update tblAdoptReview set arview = arview+1 where arseq =${arseq}
+	</update>
+	
+	<update id="reducearview" parameterType="String">
+		update tblAdoptReview set arview = arview-1 where arseq =${arseq}
+	</update>
+
+	<select id="adrsearch" parameterType="String" resultType="com.test.petwogether.model.member.AdoptReviewDTO">
+		select arseq, m.mname as arname, artitle, arcontent, arregdate, arview, arfile from tblAdoptReview ar 
+			left join tblMember m on ar.mseq = m.mseq where artitle like '%'||#{word}||'%'
+				order by arseq desc
+	</select>
+	
+	<select id="gettotalareview" resultType="Integer">
+		select count(*) from tblAdoptReview
+	</select>
+	
+	<!-- 지현END ====== -->
+
+</mapper>
